@@ -194,9 +194,10 @@ manpo/%.po: manpo/manpages.pot
 	msgmerge -U $@ $<
 	touch $@
 
+# Note: use a for-loop to gracefully handle the case where $^ is empty.
 manpo/stamp: $(patsubst %,manpo/%.po,$(MANLINGUAS))
 	if ! make -q manpo/manpages.pot ; then \
-	touch manpo/manpages.pot ; [ -n "$^" ] && touch $^ ; fi
+	touch manpo/manpages.pot ; for x in $^; do touch $$x; done; fi
 	touch $@
 
 manpo/all: manpo/stamp $(MANPAGES)
