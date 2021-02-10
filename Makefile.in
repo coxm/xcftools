@@ -71,6 +71,10 @@ endif
 
 all: $(BINARIES) $(SCRIPTS) $(MANPAGES) po/stamp manpo/all
 
+.PHONY: binaries
+binaries: $(BINARIES)
+	
+
 xcfinfo$e: xcfinfo.$o $(FILEIO).$o enums.$o xcf-general.$o utils.$o nlsini.$o
 	$(CC) $(LDFLAGS) $^ -o $@ $(LIBS)
 
@@ -88,13 +92,16 @@ xcfview: xcfview.in Makefile
 testscale$e: testscale.$o
 	$(CC) $(LDFLAGS) $^ -o $@ $(LIBS)
 
-install: all
+.PHONY: install-binaries
+install-binaries: binaries
 	for p in $(BINARIES) ; do \
 	  case $$p in xcfview) strip= ;; *) strip=-s ;; esac ; \
 	  $(INSTALL_PROGRAM) $$strip $$p \
 	    $(DESTDIR)$(bindir)/`echo $$p | $(SED) $(program_transform_name)` \
 	    || exit 1 ;\
-        done
+	done
+
+install: all install-binaries
 	for m in $(MANPAGES) ; do \
 	  $(INSTALL_DATA) $$m \
 	    $(DESTDIR)$(mandir)/man1/`echo $$m | $(SED) $(program_transform_name)` \
